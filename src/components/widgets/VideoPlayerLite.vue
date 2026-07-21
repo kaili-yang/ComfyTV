@@ -20,6 +20,7 @@
           :muted="muted"
           :style="videoStyle"
           class="ctv:block ctv:size-full ctv:object-contain ctv:cursor-pointer"
+          :class="{ 'ctv-alpha-checker': isAlphaSource }"
           playsinline preload="metadata"
           @loadedmetadata="onMeta"
           @timeupdate="onTimeUpdate"
@@ -127,6 +128,10 @@ const {
   url: effectiveUrl, isProxy, canProxy, building, pct, requestProxy,
 } = useProxiedVideoUrl(sourceVideoUrlRef)
 
+const isAlphaSource = computed(() =>
+  /\.webm([?&#]|$)/i.test(props.sourceVideoUrl ?? '')
+  || /filename=[^&]*\.webm/i.test(props.sourceVideoUrl ?? ''))
+
 let carryTime: number | null = null
 watch(isProxy, (now, was) => {
   if (now && !was) {
@@ -170,3 +175,13 @@ function onMeta() {
 
 defineExpose({ videoEl, boxEl, duration })
 </script>
+
+<style scoped>
+.ctv-alpha-checker {
+  background-image:
+    linear-gradient(45deg, #333 25%, transparent 25%, transparent 75%, #333 75%),
+    linear-gradient(45deg, #333 25%, #222 25%, #222 75%, #333 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 8px 8px;
+}
+</style>

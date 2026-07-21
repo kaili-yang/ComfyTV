@@ -546,6 +546,7 @@ export function useStageNode(
 
   node.onConnectionsChange = useChainCallback(node.onConnectionsChange, () => {
     queueMicrotask(refresh)
+    queueMicrotask(() => store.notifyDownstream())
     if (variant === 'generator') queueMicrotask(reValidate)
   })
 

@@ -68,10 +68,12 @@ def _build_video_graph(graph, in_v, specs, pix_fmt='yuv420p'):
         f = graph.add(name, args) if args else graph.add(name)
         prev.link_to(f)
         prev = f
-    mat = graph.add('scale', 'out_color_matrix=bt709')
-    prev.link_to(mat)
+    if 'yuva' not in pix_fmt:
+        mat = graph.add('scale', 'out_color_matrix=bt709')
+        prev.link_to(mat)
+        prev = mat
     fmt = graph.add('format', pix_fmt)
-    mat.link_to(fmt)
+    prev.link_to(fmt)
     sink = graph.add('buffersink')
     fmt.link_to(sink)
     return src, sink
@@ -251,7 +253,8 @@ def filter_video(view_url: str,
                 enc_v.height = frame.height - (frame.height % 2)
                 enc_v.pix_fmt = pix_fmt
                 enc_v.codec_context.time_base = _OUT_TB
-                tag_bt709(enc_v.codec_context)
+                if 'yuva' not in pix_fmt:
+                    tag_bt709(enc_v.codec_context)
             t = _frame_time(frame, in_v.time_base)
             if t is None:
                 return

@@ -168,12 +168,13 @@ def torch_process_video(view_url: str, frame_fn, *, progress=None,
                 enc.width = tensor.shape[1] - (tensor.shape[1] % 2)
                 enc.height = tensor.shape[0] - (tensor.shape[0] % 2)
                 enc.codec_context.time_base = _OUT_TB
-                from .media_filter import tag_bt709
-                tag_bt709(enc.codec_context)
+                if not out_alpha:
+                    from .media_filter import tag_bt709
+                    tag_bt709(enc.codec_context)
             ch = 4 if out_alpha else 3
             nf = _from_tensor(tensor[:enc.height, :enc.width, :ch])
-            nf = nf.reformat(format='yuva420p' if out_alpha else 'yuv420p',
-                             dst_colorspace='ITU709')
+            nf = nf.reformat(format='yuva420p') if out_alpha \
+                else nf.reformat(format='yuv420p', dst_colorspace='ITU709')
             nf.pts = int(round(t / _OUT_TB))
             nf.time_base = _OUT_TB
             for pkt in enc.encode(nf):
