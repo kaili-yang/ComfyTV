@@ -4,6 +4,10 @@ import {
   buildCurvesLuts,
   type VideoCurvesParams,
 } from '@/composables/stages/videoCurvesMath'
+import {
+  fxSourceSize,
+  type FxPreviewSource,
+} from '@/widgets/glsl/fxPreviewSource'
 
 const RENDER_CONFIG = {
   maxInputs: 1,
@@ -43,12 +47,11 @@ export class VideoCurvesRenderer {
   }
 
   renderToCanvas(
-    video: HTMLVideoElement,
+    video: FxPreviewSource,
     params: Partial<VideoCurvesParams>,
     target: HTMLCanvasElement,
   ): boolean {
-    const w = Math.max(2, video.videoWidth)
-    const h = Math.max(2, video.videoHeight)
+    const { w, h } = fxSourceSize(video)
 
     try {
       if (!this.ready) {
